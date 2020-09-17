@@ -92,8 +92,8 @@ long long int get_k(long long c1, long long d1, long long c2, long long d2,
 void calc_tripletset(POINT_T *tripletset, POINT_T P, POINT_T Q, long long a,
                    long long p, long long order, int L, int nbits);
 void rand_itpset(IT_POINT_SET *itpset, POINT_T *Psums, POINT_T *Qsums,
-                 long long a, long long p, long long order, int L, int nbits,
-                 int algorithm);
+            long long a, long long p, long long order, int L, int nbits,
+            int algorithm, int tid);
 void check_slot_and_store(POINT_T X, POINT_T *Y, int token, int *retval);
 long long int calc_k(POINT_T P, POINT_T Q, long long a, long long p, long long order,
                     long long *numits, int L, const long long nworkers, int alg);

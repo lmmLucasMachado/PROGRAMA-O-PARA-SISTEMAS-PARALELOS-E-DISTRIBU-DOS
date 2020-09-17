@@ -391,35 +391,31 @@ void calc_Q(POINT_T *pQ, POINT_T *Psums, long long k, int nbits, long long a, lo
 void
 rand_itpset(IT_POINT_SET *itpset, POINT_T *Psums, POINT_T *Qsums,
             long long a, long long p, long long order, int L, int nbits,
-            int algorithm) {
+            int algorithm, int tid) {
 
-    #pragma omp parallel
-    {
-        srand((time(NULL)) ^ omp_get_thread_num());
+    srand((time(NULL)) ^ tid);
 
-        #pragma omp for
-        for (long long i=0; i < L; i++) {
-            long long r = get_rand(order);
-            long long s = get_rand(order);
+    #pragma omp for schedule(dynamic)
+    for (long long i=0; i < L; i++) {
+        long long r = get_rand(order);
+        long long s = get_rand(order);
 
-            itpset->itpoint[i] = EMPTY_POINT;
-            uint32_t bitmask = 1;
+        itpset->itpoint[i] = EMPTY_POINT;
+        uint32_t bitmask = 1;
 
-            for (long long j=0; j < nbits; j++) {
-                if (r & bitmask) {
-                    itpset->itpoint[i] = addpoints(itpset->itpoint[i], Psums[j], a, p, 0);
-                }
-                if (s & bitmask) {
-                    itpset->itpoint[i] = addpoints(itpset->itpoint[i], Qsums[j], a, p, 0);
-                }
-                bitmask = (bitmask << 1);
+        for (long long j=0; j < nbits; j++) {
+            if (r & bitmask) {
+                itpset->itpoint[i] = addpoints(itpset->itpoint[i], Psums[j], a, p, 0);
             }
-
-            itpset->itpoint[i].r = r;
-            itpset->itpoint[i].s = s;
+            if (s & bitmask) {
+                itpset->itpoint[i] = addpoints(itpset->itpoint[i], Qsums[j], a, p, 0);
+            }
+            bitmask = (bitmask << 1);
         }
+        itpset->itpoint[i].r = r;
+        itpset->itpoint[i].s = s;
     }
-
+    
     return;
 }
 
@@ -617,13 +613,13 @@ calc_iteration_point_set3(IT_POINT_SET *itpset, IT_POINT_SET *itpsetbase,
         }
         else {
             // Each odd worker's iteration point set is randomly calculated
-            rand_itpset(itpset, Psums, Qsums, a, p, order, L, nbits, algorithm);
+            // rand_itpset(itpset, Psums, Qsums, a, p, order, L, nbits, algorithm);
         }
     }
 
     else if (algorithm == HARES) {
         // Each and every worker's iteration point set is randomly calculated
-        rand_itpset(itpset, Psums, Qsums, a, p, order, L, nbits, algorithm);
+        // rand_itpset(itpset, Psums, Qsums, a, p, order, L, nbits, algorithm);
     }
 
     return;
@@ -766,15 +762,16 @@ int main() {
     struct timespec start_program, end_program;
     clock_gettime(CLOCK_MONOTONIC, &start_program);
 	long long a = 1, b = 44, p, maxorder, k, key;
-	int it_number, minits, maxits = 0, run=1, i;
+	int it_number, minits, maxits = 0, i;
 	POINT_T Q, P;
     struct timespec start, end;
 	double convergence_time, setup_time, total_it_num = 0.0, total_it_time = 0.0, total_su_time = 0.0;
+    char *stepdef;
 
-	switch (algorithm)  {
-        case VOW:   printf("\n\nPOLLARD RHO ALGORITHM  --  VOW\n");                  break;
-        case TOHA:  printf("\n\nPOLLARD RHO ALGORITHM  --  Tortoises and Hares\n");  break;
-        case HARES: printf("\n\nPOLLARD RHO ALGORITHM  --  Tortoises\n");            break;
+	switch (algorithm) {
+        case VOW:   printf("\n\nPOLLARD RHO ALGORITHM  --  VOW\n"); stepdef = "all-equal"; break;
+        case TOHA:  printf("\n\nPOLLARD RHO ALGORITHM  --  Tortoises and Hares\n"); stepdef = "1/2 equal + 1/2 varying";  break;
+        case HARES: printf("\n\nPOLLARD RHO ALGORITHM  --  Tortoises\n"); stepdef = "all-varying"; break;
 	}
 
 	/////////////////////////////////////////////////////////////////////////
@@ -836,7 +833,7 @@ int main() {
 
     printf("\n");
     printf("P = (x = %8lld, y = %8lld) (r = %8lld, s = %8lld)         (Base Point)\n", P.x, P.y, P.r, P.s);
-    printf("Q = (x = %8lld, y = %8lld)  (r = %8lld, s = %8lld)        (Q = kP    )\n\n\n", Q.x, Q.y, Q.r, Q.s);
+    printf("Q = (x = %8lld, y = %8lld) (r = %8lld, s = %8lld)         (Q = kP    )\n\n\n", Q.x, Q.y, Q.r, Q.s);
 
     // Initialize minits
     minits = maxorder;
@@ -846,27 +843,28 @@ int main() {
     // Remember the number of iterations each run took to find the key (k).
     // Then calculate the expected (average) number of iterations that this
     // calculation takes.
-
-    while (1) {
-
-        // Initialize the number of iterations
-        it_number = 1;
+    #pragma omp parallel
+    {
+        int run, thread_num = omp_get_thread_num();
 
         // Initialize the random generator
-        srand(time(NULL));
+        srand((time(NULL)) ^ thread_num);
 
-        // Start counting the setup time
-        clock_gettime(CLOCK_MONOTONIC, &start);
+        for(run = 1; run <= MAX_RUNS; ++run) {
+            #pragma omp single
+            {
+                // Initialize the number of iterations
+                it_number = 1;
 
-        // Calculate the iteration point set base (randomly)
-        rand_itpset(&itPsetBase, Psums, Qsums, a, p, maxorder, L, nbits, algorithm);
+                // Start counting the setup time
+                clock_gettime(CLOCK_MONOTONIC, &start);
+            }
 
-        // Set up the running environment for the search for all workers
-        //printf("Run[%3d] setup:    ", run);
+            // Set up the running environment for the search for all workers
+            //printf("Run[%3d] setup:    ", run);
 
-        #pragma omp parallel
-        {
-            int thread_num = omp_get_thread_num();
+            // Calculate the iteration point set base (randomly)
+            rand_itpset(&itPsetBase, Psums, Qsums, a, p, maxorder, L, nbits, algorithm, thread_num);
             setup_worker(a, p, maxorder, L, nbits, thread_num, algorithm);
             //printf("   %3d", id+1);
             //fflush(stdout);
@@ -906,55 +904,41 @@ int main() {
                 }
             }
 
-            #pragma omp single
+            #pragma omp single nowait
             {
                 // Recover the current time and calculate the execution time
                 clock_gettime(CLOCK_MONOTONIC, &end);
+                convergence_time = (end.tv_sec - start.tv_sec);
+                convergence_time += (end.tv_nsec - start.tv_nsec) / 1000000000.0;
+                convergence_time *= 1000;
+
+                // Run converged. Print information for it.
+                printf("\nRun[%3d] converged after %4d iterations: k = %lld, nworkers = %4d,\n",
+                       run, it_number, key, nworkers);
+                printf("         setup time = %6.1lf ms, conv time = %6.1lf ms (itfs \"%s\")\n\n",
+                       setup_time, convergence_time, stepdef);
+
+                // Keep track of the minimum number of iterations needed to converge in all runs.
+                if (it_number < minits) {
+                    minits = it_number;
+                }
+
+                if (it_number > maxits) {
+                    maxits = it_number;
+                }
+
+                total_it_num  = total_it_num  + it_number;
+                total_su_time = total_su_time + setup_time;
+                total_it_time = total_it_time + convergence_time;
             }
 
             // Cleanup the hash table
-            #pragma omp for
+            #pragma omp for nowait
             for (i=0; i < TABLESIZE; i++) {
                 hashtable[i] = EMPTY_POINT;
             }
         }
-
-        //convergence_time = (double)((end - start) / CLOCKS_PER_SEC);
-        convergence_time = (end.tv_sec - start.tv_sec);
-        convergence_time += (end.tv_nsec - start.tv_nsec) / 1000000000.0;
-        convergence_time *= 1000;
-
-        // Choose text for describing the algorithm iteration point sets
-        char *stepdef;
-        switch (algorithm)  {
-            case VOW:   stepdef = "all-equal";                break;
-            case TOHA:  stepdef = "1/2 equal + 1/2 varying";  break;
-            case HARES: stepdef = "all-varying";              break;
-        }
-
-        // Run converged. Print information for it.
-        printf("\nRun[%3d] converged after %4d iterations: k = %lld, nworkers = %4d,\n",
-               run, it_number, key, nworkers);
-        printf("         setup time = %6.1lf ms, conv time = %6.1lf ms (itfs \"%s\")\n\n",
-               setup_time, convergence_time, stepdef);
-
-        // Keep track of the minimum number of iterations needed to converge in all runs.
-        if (it_number < minits) {
-            minits = it_number;
-        }
-
-        if (it_number > maxits) {
-            maxits = it_number;
-        }
-
-        total_it_num  = total_it_num  + it_number;
-        total_su_time = total_su_time + setup_time;
-        total_it_time = total_it_time + convergence_time;
-
-        if (run == MAX_RUNS) break;
-
-        run++;
-    }   // Loop to do various different executions __ while (1)
+    }
 
     clock_gettime(CLOCK_MONOTONIC, &end_program);
     double total_program = (end_program.tv_sec - start_program.tv_sec);
@@ -963,14 +947,13 @@ int main() {
 
      // Final statistics
     printf("\n\nFINAL STATISTICS\n\n");
-    printf("Runs = %d, Min Its # = %d,  Max Its = %d, Av. Iteration # = %.0lf\n", run, minits, maxits, total_it_num/MAX_RUNS);
-    printf("Av. Setup Time = %.1lf ms, Total Setup Time = %.1lf ms\n", total_su_time/run, total_su_time);
-    printf("Av. Iteration Time = %.1lf ms, Total Iteration Time = %.1lf ms\n", total_it_time/run, total_it_time);
+    printf("Runs = %d, Min Its # = %d,  Max Its = %d, Av. Iteration # = %.0lf\n", MAX_RUNS, minits, maxits, total_it_num/MAX_RUNS);
+    printf("Av. Setup Time = %.1lf ms, Total Setup Time = %.1lf ms\n", total_su_time/MAX_RUNS, total_su_time);
+    printf("Av. Iteration Time = %.1lf ms, Total Iteration Time = %.1lf ms\n", total_it_time/MAX_RUNS, total_it_time);
     printf("Total Time (Setup + Convergence) = %.1lf ms\n", total_su_time + total_it_time);
 
     printf("\nTempo Total de Execucao do Programa = %.1lf ms\n", total_program);
     fflush(stdout);
 
-	exit(0);
+	return 0;
 }
-
