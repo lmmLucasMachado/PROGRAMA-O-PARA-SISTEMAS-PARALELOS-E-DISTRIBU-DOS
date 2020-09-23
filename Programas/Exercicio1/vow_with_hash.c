@@ -751,12 +751,6 @@ worker_it_task(long long a, long long p, long long order, const int L, int id, l
     handle_newpoint(&X[id], order, key);
 }
 
-//  Tempos Atuais Totais (média)
-
-//  Setup = 4.3s (4.3 / 4.4 / 4.3)
-//  Iteration = 32.4s (32.3 / 31.8 / 33.3)
-//  Total = 36.8s (36.7 / 36.3 / 37.6)
-
 int main() {
     omp_set_num_threads(NUM_THREADS);
     struct timespec start_program, end_program;

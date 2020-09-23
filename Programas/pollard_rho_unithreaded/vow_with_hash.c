@@ -2,16 +2,17 @@
 #define __global__
 #define __device__
 
-#include <prho_vow.h>
-#include "C:\MinGW\include\time.h"
-#include <hash3_code.h>
-
+#include "prho_vow.h"
+#include "hash3_code.h"
+#include <time.h>
+#include <string.h>
 
 // Defines that the user can control
-#define MAX_RUNS                    30
-#define NUM_WORKERS                200
-#define MODULO_NUM_BITS             24
-
+#define MAX_RUNS                    100
+#define NUM_WORKERS                   8
+#define MODULO_NUM_BITS              20
+#define NUM_THREADS                   8
+#define MAX_EMPTY_SLOT_NOT_FOUND    100
 
 // GLOBAL VARIABLES
 
@@ -41,57 +42,6 @@ IT_POINT_SET itPsets[NUM_THREADS];
 // Utility Functions
 //
 ////////////////////////////////////////////////////////////////////////////
-
-
-void GetXY(int *x, int *y)
-{
-  CONSOLE_SCREEN_BUFFER_INFO  csbInfo;
-  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbInfo);
-  *x = csbInfo.dwCursorPosition.X;
-  *y = csbInfo.dwCursorPosition.Y;
-}
-
-int wherex() {
-    int x, y;
-    GetXY(&x, &y);
-    return x;
-}
-
-int wherey() {
-    int x, y;
-    GetXY(&x, &y);
-    return y;
-}
-
-
-double get_wall_time(){
-    LARGE_INTEGER time,freq;
-    if (!QueryPerformanceFrequency(&freq)){
-        //  Handle error
-        return 0;
-    }
-    if (!QueryPerformanceCounter(&time)){
-        //  Handle error
-        return 0;
-    }
-    return (double)time.QuadPart / freq.QuadPart;
-}
-
-double get_cpu_time(){
-    FILETIME a,b,c,d;
-    if (GetProcessTimes(GetCurrentProcess(),&a,&b,&c,&d) != 0){
-        //  Returns total user time.
-        //  Can be tweaked to include kernel times as well.
-        return
-            (double)(d.dwLowDateTime |
-            ((unsigned long long)d.dwHighDateTime << 32)) * 0.0000001;
-    }else{
-        //  Handle error
-        return 0;
-
-    }
-}
-
 
 void printP(POINT_T X)  {
     printf("(%7lld, %7lld), r = %8lld, s = %8lld", X.x, X.y, X.r, X.s);
@@ -266,7 +216,7 @@ long long multiplicative_inverse(long long num, long long modulo)
 
     		if (DEBUG) {
     		    printf("\n\n_______________________________________________________________________________\n\n\n");
-    		    printf("WILL BREAK:   rest = (r2 % r1) = 0      r2=%lld    r1=%lld\n\n", r2, r1);
+    		    //printf("WILL BREAK:   rest = (r2 % r1) = 0      r2=%lld    r1=%lld\n\n", r2, r1);
     		    printf("_______________________________________________________________________________\n\n");
     	    }
 
@@ -774,31 +724,6 @@ setup_worker(POINT_T *X, POINT_T P, POINT_T Q, long long a, long long p, long lo
 //
 ////////////////////////////////////////////////////////////////////////////
 
-void
-worker_it_task(long long a, long long p, long long order,
-               const int L, int id, int *key)
-{
-    // Calculate the next point
-    X[id] = nextpoint(X[id], a, p, order, L, &itPsets[id]);
-
-    // Handle the new point checking if the key has been found
-    handle_newpoint(X[id], order, key);
-}
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// This function stores a new point in the hashtable and looks for
-// a "good" collision: two points (P1, P2) with equal coordinates
-// (X,Y) but with different coefficients (r,s), such that:
-//
-//      P1 = r1*P + s1*Q,       P2 = r2*P + s2Q,       P1 = P2
-//
-/////////////////////////////////////////////////////////////////////////////
-
 void handle_newpoint(POINT_T X, long long order, long long *key)
 {
     int retval, num_emptyslotnotfound = 0;
@@ -835,18 +760,43 @@ void handle_newpoint(POINT_T X, long long order, long long *key)
     return;
 }
 
-
-int main()
+void
+worker_it_task(long long a, long long p, long long order,
+               const int L, int id, long long *key)
 {
+    // Calculate the next point
+    X[id] = nextpoint(X[id], a, p, order, L, &itPsets[id]);
+
+    // Handle the new point checking if the key has been found
+    handle_newpoint(X[id], order, key);
+}
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// This function stores a new point in the hashtable and looks for
+// a "good" collision: two points (P1, P2) with equal coordinates
+// (X,Y) but with different coefficients (r,s), such that:
+//
+//      P1 = r1*P + s1*Q,       P2 = r2*P + s2Q,       P1 = P2
+//
+/////////////////////////////////////////////////////////////////////////////
+
+
+int main() {
+    clock_t start_program = clock();
 	long long a, b, p, maxorder, k;
 	long long key;
 	int it_number, minits, maxits = 0, run=1;
 	POINT_T G, Q, P;
 	time_t  init, term;
-	double start, end;
+	clock_t start, end;
 	double convergence_time, setup_time;
 	double average_it_num = 0.0, average_it_time = 0.0;
-	double total_it_num = 0.0, total_it_time = 0.0;
+	double total_it_num = 0.0, total_it_time = 0.0, total_su_time = 0.0;
 	uint32_t bitmask;
 	int i, id;
 
@@ -907,7 +857,7 @@ int main()
 
 	printf("Order of the curve = %lld\n\n", maxorder);
 
-	printf("Number of workers = %lld\n\n", nworkers);
+	printf("Number of workers = %d\n\n", nworkers);
 
     // Calculating point Q = kP
     printf("Calculating point Q = kP      (k = %lld)\n", k);
@@ -937,26 +887,26 @@ int main()
         srand(time(NULL));
 
         // Start counting the setup time
-        start = get_wall_time();
+        start = clock();
 
         // Calculate the iteration point set base (randomly)
         rand_itpset(&itPsetBase, Psums, Qsums, id, a, p, maxorder, L, nbits, algorithm);
 
         // Set up the running environment for the search for all workers
-        printf("Run[%3d] setup:    ", run);
+        //printf("Run[%3d] setup:    ", run);
         for (id=0; id < nworkers; id++) {
             setup_worker(X, P, Q, a, p, maxorder, L, nbits, id, algorithm);
-            printf("\b\b\b%3d", id+1);
-            fflush(stdout);
+            //printf("\b\b\b%3d", id+1);
+            //fflush(stdout);
         }
-        printf("\nRun[%3d] iterations: ", run);
+        //printf("\nRun[%3d] iterations: ", run);
 
         // Stop counting the setup time and calculate it
-        end = get_wall_time();
-        setup_time = 1000*(double)((end - start) / CLOCKS_PER_SEC);
+        end = clock();
+        setup_time = (double)((end - start)) / 1000;
 
         // Start counting the execution time
-        start = get_wall_time();
+        start = clock();
 
         for ( ; ; ) {
 
@@ -965,23 +915,25 @@ int main()
                 if (key != NO_KEY_FOUND) break;  // is the search over?
             }
 
+            /*
             if (it_number%10  ==  0) printf(" %d ", it_number);
             else {
                 if (wherex() >= 80) printf("\n                     ");
                 printf("+");
             }
             fflush(stdout);
+            */
 
             if (key != NO_KEY_FOUND) {
-                printf("  (%d its)\n", it_number);
+                //printf("  (%d its)\n", it_number);
                 break;
             }
             it_number++;
         }
 
         // Recover the current time and calculate the execution time
-        end = get_wall_time();
-        convergence_time = 1000*(double)((end - start) / CLOCKS_PER_SEC);
+        end = clock();
+        convergence_time = (double)((end - start)) / 1000;
 
         // Choose text for describing the algorithm iteration point sets
         char *stepdef;
@@ -994,7 +946,7 @@ int main()
         // Run converged. Print information for it.
         printf("\nRun[%3d] converged after %4d iterations: k = %lld, nworkers = %4d,\n",
                run, it_number, key, nworkers);
-        printf("         setup time = %6.1lf s, conv time = %6.1lf s (itfs \"%s\")\n\n",
+        printf("         setup time = %6.1lf ms, conv time = %6.1lf ms (itfs \"%s\")\n\n",
                setup_time, convergence_time, stepdef);
 
         // Keep track of the minimum number of iterations needed to converge in all runs.
@@ -1007,6 +959,7 @@ int main()
         }
 
         total_it_num  = total_it_num  + it_number;
+        total_su_time = total_su_time + setup_time;
         total_it_time = total_it_time + convergence_time;
 
         // Cleanup the hash table
@@ -1016,10 +969,17 @@ int main()
         run++;
     }   // Loop to do various different executions __ while (1)
 
+    clock_t end_program = clock();
+    double total_program = (double)((end_program - start_program)) / 1000;
+
      // Final statistics
     printf("\n\nFINAL STATISTICS\n\n");
-    printf("Runs = %d, Min Its # = %d,  Max Its = %d, Av. Iteration # = %.0lf, ", run, minits, maxits, total_it_num/MAX_RUNS);
-    printf("Av. Iteration Time = %.1lf s, Total Time = %.1lf s\n\n", total_it_time/run, total_it_time);
+    printf("Runs = %d, Min Its # = %d,  Max Its = %d, Av. Iteration # = %.0lf\n", run, minits, maxits, total_it_num/MAX_RUNS);
+    printf("Av. Setup Time = %.1lf ms, Total Setup Time = %.1lf ms\n", total_su_time/run, total_su_time);
+    printf("Av. Iteration Time = %.1lf ms, Total Iteration Time = %.1lf ms\n", total_it_time/run, total_it_time);
+    printf("Total Time (Setup + Convergence) = %.1lf ms\n", total_su_time + total_it_time);
+
+    printf("\nTempo Total de Execucao do Programa = %.1lf ms\n", total_program);
     fflush(stdout);
 
 	exit(0);

@@ -7,15 +7,8 @@
 #include <math.h>
 #include <stdint.h>
 #include <sys/param.h>    // Attempt to define endianness
-#include <conio.h>
-#ifdef linux
-# include <endian.h>      // Attempt to define endianness
-#else
-#include <Windows.h>
-#include <wchar.h>
-#endif
+#include <endian.h>
 
-#define NUM_WORKERS                200
 #define NUM_IT_FUNCTION_INTERVALS   32
 #define NO_KEY_FOUND                -1
 
@@ -104,8 +97,9 @@ void rand_itpset(IT_POINT_SET *itpset, POINT_T *Psums, POINT_T *Qsums, int tid,
 void check_slot_and_store(POINT_T X, POINT_T *Y, int token, int *retval);
 long long int calc_k(POINT_T P, POINT_T Q, long long a, long long p, long long order,
                     long long *numits, int L, const long long nworkers, int alg);
-void initial_point(POINT_T *Pinit, POINT_T *Psums, POINT_T *Qsums, int nbits, int gid, int algorithm,
-                   int nworkers, long long a, long long p, long long order);
+void initial_point(POINT_T *init_point, POINT_T *Psums, POINT_T *Qsums, int nbits,
+                   int gtid, int alg, long long nworkers, long long a,
+                   long long p, long long order);
 
 void calc_iteration_point_set(POINT_T **itpset_P, POINT_T *itsetbase, POINT_T *Psums, POINT_T *Qsums, int tid,
                               long long a, long long p, long long order, int L, int nbits, int algorithm);
