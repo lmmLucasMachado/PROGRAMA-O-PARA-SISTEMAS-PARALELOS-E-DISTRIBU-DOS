@@ -9,10 +9,10 @@
 #                                                                       #
 # var1: nbits                                                           #
 # var2: NUM_THREADS                                                     #
-# var3: quantidade de execuções                                         #
+# var3: quantidade_de_execucoes                                         #
 #                                                                       #
-# Não esqueça de modificar o programa com os valores corretos e         #
-# compilar antes de executar o script                                   #
+# O programa será recompilado com os valores de nbits e NUM_THREADS,    #
+# em seguida, será executado quantidade_de_execucoes vezes              #
 #                                                                       #
 #########################################################################
 
