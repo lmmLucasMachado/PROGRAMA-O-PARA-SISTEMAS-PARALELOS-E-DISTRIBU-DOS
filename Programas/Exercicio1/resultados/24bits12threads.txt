@@ -1,0 +1,70 @@
+Run 1
+
+@@@@@Setup Time: 21418.2 ms
+Convergence Time: 97080.5 ms
+Total Time (Setup + Convergence): 118498.7 ms
+Tempo Total de Execucao do Programa: 118644.2 ms
+----------------------------------------------------
+Run 2
+
+@@@@@@@@@Setup Time: 21469.3 ms
+Convergence Time: 101331.2 ms
+Total Time (Setup + Convergence): 122800.4 ms
+Tempo Total de Execucao do Programa: 122941.1 ms
+----------------------------------------------------
+Run 3
+
+@@@@@@Setup Time: 21416.2 ms
+Convergence Time: 102290.4 ms
+Total Time (Setup + Convergence): 123706.6 ms
+Tempo Total de Execucao do Programa: 123844.0 ms
+----------------------------------------------------
+Run 4
+
+@@@@@@Setup Time: 21490.4 ms
+Convergence Time: 107182.3 ms
+Total Time (Setup + Convergence): 128672.6 ms
+Tempo Total de Execucao do Programa: 128814.4 ms
+----------------------------------------------------
+Run 5
+
+@@@@@@@@Setup Time: 21075.6 ms
+Convergence Time: 104090.7 ms
+Total Time (Setup + Convergence): 125166.2 ms
+Tempo Total de Execucao do Programa: 125318.0 ms
+----------------------------------------------------
+Run 6
+
+@@@@@@@Setup Time: 21394.4 ms
+Convergence Time: 99466.6 ms
+Total Time (Setup + Convergence): 120861.0 ms
+Tempo Total de Execucao do Programa: 121001.7 ms
+----------------------------------------------------
+Run 7
+
+@@@@@@@@@@@@Setup Time: 21075.4 ms
+Convergence Time: 100933.5 ms
+Total Time (Setup + Convergence): 122009.0 ms
+Tempo Total de Execucao do Programa: 122150.7 ms
+----------------------------------------------------
+Run 8
+
+@@@@@@@@@@@@@@@Setup Time: 21300.2 ms
+Convergence Time: 111353.7 ms
+Total Time (Setup + Convergence): 132653.9 ms
+Tempo Total de Execucao do Programa: 132797.9 ms
+----------------------------------------------------
+Run 9
+
+@@@@@@@@@Setup Time: 21296.2 ms
+Convergence Time: 102265.6 ms
+Total Time (Setup + Convergence): 123561.8 ms
+Tempo Total de Execucao do Programa: 123708.5 ms
+----------------------------------------------------
+Run 10
+
+@@@@@@@@@@@Setup Time: 21319.7 ms
+Convergence Time: 103277.6 ms
+Total Time (Setup + Convergence): 124597.3 ms
+Tempo Total de Execucao do Programa: 124733.9 ms
+----------------------------------------------------

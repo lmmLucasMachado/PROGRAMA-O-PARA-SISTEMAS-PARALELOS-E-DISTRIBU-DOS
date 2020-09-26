@@ -1,0 +1,70 @@
+Run 1
+
+Setup Time: 6613.0 ms
+Convergence Time: 11701.9 ms
+Total Time (Setup + Convergence): 18315.0 ms
+Tempo Total de Execucao do Programa: 18547.9 ms
+----------------------------------------------------
+Run 2
+
+Setup Time: 6657.1 ms
+Convergence Time: 10851.3 ms
+Total Time (Setup + Convergence): 17508.4 ms
+Tempo Total de Execucao do Programa: 17739.2 ms
+----------------------------------------------------
+Run 3
+
+Setup Time: 6611.9 ms
+Convergence Time: 11889.1 ms
+Total Time (Setup + Convergence): 18501.0 ms
+Tempo Total de Execucao do Programa: 18733.3 ms
+----------------------------------------------------
+Run 4
+
+Setup Time: 6662.0 ms
+Convergence Time: 12134.8 ms
+Total Time (Setup + Convergence): 18796.8 ms
+Tempo Total de Execucao do Programa: 19027.2 ms
+----------------------------------------------------
+Run 5
+
+Setup Time: 6807.9 ms
+Convergence Time: 12030.7 ms
+Total Time (Setup + Convergence): 18838.7 ms
+Tempo Total de Execucao do Programa: 19071.8 ms
+----------------------------------------------------
+Run 6
+
+Setup Time: 6533.2 ms
+Convergence Time: 9327.3 ms
+Total Time (Setup + Convergence): 15860.5 ms
+Tempo Total de Execucao do Programa: 16093.6 ms
+----------------------------------------------------
+Run 7
+
+Setup Time: 6695.8 ms
+Convergence Time: 11288.0 ms
+Total Time (Setup + Convergence): 17983.8 ms
+Tempo Total de Execucao do Programa: 18216.5 ms
+----------------------------------------------------
+Run 8
+
+Setup Time: 6586.9 ms
+Convergence Time: 12800.6 ms
+Total Time (Setup + Convergence): 19387.5 ms
+Tempo Total de Execucao do Programa: 19619.5 ms
+----------------------------------------------------
+Run 9
+
+Setup Time: 6587.3 ms
+Convergence Time: 13904.2 ms
+Total Time (Setup + Convergence): 20491.5 ms
+Tempo Total de Execucao do Programa: 20722.0 ms
+----------------------------------------------------
+Run 10
+
+Setup Time: 6536.5 ms
+Convergence Time: 11828.7 ms
+Total Time (Setup + Convergence): 18365.2 ms
+Tempo Total de Execucao do Programa: 18601.2 ms
+----------------------------------------------------

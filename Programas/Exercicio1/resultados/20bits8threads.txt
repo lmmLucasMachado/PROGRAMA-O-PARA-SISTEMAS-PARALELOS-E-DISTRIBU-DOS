@@ -1,0 +1,70 @@
+Run 1
+
+Setup Time: 1362.2 ms
+Convergence Time: 2192.5 ms
+Total Time (Setup + Convergence): 3554.7 ms
+Tempo Total de Execucao do Programa: 3662.0 ms
+----------------------------------------------------
+Run 2
+
+@Setup Time: 1337.9 ms
+Convergence Time: 2162.0 ms
+Total Time (Setup + Convergence): 3499.9 ms
+Tempo Total de Execucao do Programa: 3607.6 ms
+----------------------------------------------------
+Run 3
+
+Setup Time: 1314.1 ms
+Convergence Time: 2279.1 ms
+Total Time (Setup + Convergence): 3593.2 ms
+Tempo Total de Execucao do Programa: 3702.0 ms
+----------------------------------------------------
+Run 4
+
+Setup Time: 1371.1 ms
+Convergence Time: 2273.5 ms
+Total Time (Setup + Convergence): 3644.6 ms
+Tempo Total de Execucao do Programa: 3754.2 ms
+----------------------------------------------------
+Run 5
+
+@Setup Time: 1373.2 ms
+Convergence Time: 2255.7 ms
+Total Time (Setup + Convergence): 3628.8 ms
+Tempo Total de Execucao do Programa: 3733.5 ms
+----------------------------------------------------
+Run 6
+
+Setup Time: 1377.4 ms
+Convergence Time: 2215.8 ms
+Total Time (Setup + Convergence): 3593.2 ms
+Tempo Total de Execucao do Programa: 3701.9 ms
+----------------------------------------------------
+Run 7
+
+Setup Time: 1334.7 ms
+Convergence Time: 2213.6 ms
+Total Time (Setup + Convergence): 3548.3 ms
+Tempo Total de Execucao do Programa: 3660.0 ms
+----------------------------------------------------
+Run 8
+
+Setup Time: 1346.6 ms
+Convergence Time: 2204.6 ms
+Total Time (Setup + Convergence): 3551.2 ms
+Tempo Total de Execucao do Programa: 3657.0 ms
+----------------------------------------------------
+Run 9
+
+Setup Time: 1348.7 ms
+Convergence Time: 2481.6 ms
+Total Time (Setup + Convergence): 3830.3 ms
+Tempo Total de Execucao do Programa: 3937.8 ms
+----------------------------------------------------
+Run 10
+
+Setup Time: 1359.5 ms
+Convergence Time: 2211.2 ms
+Total Time (Setup + Convergence): 3570.7 ms
+Tempo Total de Execucao do Programa: 3683.1 ms
+----------------------------------------------------
