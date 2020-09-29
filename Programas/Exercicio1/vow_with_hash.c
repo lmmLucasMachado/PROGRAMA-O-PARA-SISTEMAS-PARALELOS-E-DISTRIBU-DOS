@@ -10,8 +10,8 @@
 
 // Defines that the user can control
 #define MAX_RUNS                   100
-//#define MODULO_NUM_BITS             16
-//#define NUM_THREADS                  8
+#define MODULO_NUM_BITS             16
+#define NUM_THREADS                  8
 #define MAX_EMPTY_SLOT_NOT_FOUND   100
 
 // GLOBAL VARIABLES
@@ -761,13 +761,13 @@ int main() {
 	double convergence_time, setup_time, total_it_num = 0.0, total_it_time = 0.0, total_su_time = 0.0;
     char *stepdef;
 
-    /*
+    
 	switch (algorithm) {
         case VOW:   printf("\n\nPOLLARD RHO ALGORITHM  --  VOW\n"); stepdef = "all-equal"; break;
         case TOHA:  printf("\n\nPOLLARD RHO ALGORITHM  --  Tortoises and Hares\n"); stepdef = "1/2 equal + 1/2 varying";  break;
         case HARES: printf("\n\nPOLLARD RHO ALGORITHM  --  Tortoises\n"); stepdef = "all-varying"; break;
 	}
-    */
+    
 
 	/////////////////////////////////////////////////////////////////////////
 	//
@@ -778,9 +778,9 @@ int main() {
 	/////////////////////////////////////////////////////////////////////////
 
 
-    //printf("\nNumber of bits of the EC prime field (16/20/24/28/32): %d\n\n", nbits);
+    printf("\nNumber of bits of the EC prime field (16/20/24/28/32): %d\n\n", nbits);
 
-   // Pick elliptic curve parameters for chosen number of bits of the prime field module p
+    //Pick elliptic curve parameters for chosen number of bits of the prime field module p
     switch (nbits)  {
         case 16:
             p = 16747;                         // 16 bits
@@ -813,22 +813,22 @@ int main() {
     }
 
 
-	//if (a == 1) printf("\nElliptic curve:   y^2 = x^3 + x + %lld      (mod %lld, %d bits)\n\n", b, p, nbits);
-	//else printf("\nElliptic curve:   y^2 = x^3 + %lldx + %lld      (mod %lld, %d bits)\n\n", a, b, p, nbits);
+	if (a == 1) printf("\nElliptic curve:   y^2 = x^3 + x + %lld      (mod %lld, %d bits)\n\n", b, p, nbits);
+	else printf("\nElliptic curve:   y^2 = x^3 + %lldx + %lld      (mod %lld, %d bits)\n\n", a, b, p, nbits);
 
-	//printf("Order of the curve = %lld\n\n", maxorder);
+	printf("Order of the curve = %lld\n\n", maxorder);
 
-	//printf("Number of workers = %d\n\n", nworkers);
+	printf("Number of workers = %d\n\n", nworkers);
 
     // Calculating point Q = kP
-    //printf("Calculating point Q = kP      (k = %lld)\n", k);
+    printf("Calculating point Q = kP      (k = %lld)\n", k);
     calc_P_sums(P, a, p, maxorder, nbits);
     calc_Q(&Q, Psums, k, nbits, a, p);
     calc_Q_sums(Q, a, p, maxorder, nbits);
 
-    //printf("\n");
-    //printf("P = (x = %8lld, y = %8lld) (r = %8lld, s = %8lld)         (Base Point)\n", P.x, P.y, P.r, P.s);
-    //printf("Q = (x = %8lld, y = %8lld) (r = %8lld, s = %8lld)         (Q = kP    )\n\n\n", Q.x, Q.y, Q.r, Q.s);
+    printf("\n");
+    printf("P = (x = %8lld, y = %8lld) (r = %8lld, s = %8lld)         (Base Point)\n", P.x, P.y, P.r, P.s);
+    printf("Q = (x = %8lld, y = %8lld) (r = %8lld, s = %8lld)         (Q = kP    )\n\n\n", Q.x, Q.y, Q.r, Q.s);
 
     // Initialize minits
     minits = maxorder;
@@ -908,10 +908,10 @@ int main() {
                 convergence_time *= 1000;
 
                 // Run converged. Print information for it.
-                //printf("\nRun[%3d] converged after %4d iterations: k = %lld, nworkers = %4d,\n",
-                       //run, it_number, key, nworkers);
-                //printf("         setup time = %6.1lf ms, conv time = %6.1lf ms (itfs \"%s\")\n\n",
-                       //setup_time, convergence_time, stepdef);
+                printf("\nRun[%3d] converged after %4d iterations: k = %lld, nworkers = %4d,\n",
+                       run, it_number, key, nworkers);
+                printf("         setup time = %6.1lf ms, conv time = %6.1lf ms (itfs \"%s\")\n\n",
+                       setup_time, convergence_time, stepdef);
 
                 // Keep track of the minimum number of iterations needed to converge in all runs.
                 if (it_number < minits) {
@@ -941,19 +941,13 @@ int main() {
     total_program *= 1000;
 
      // Final statistics
-    //printf("\n\nFINAL STATISTICS\n\n");
-    //printf("Runs = %d, Min Its # = %d,  Max Its = %d, Av. Iteration # = %.0lf\n", MAX_RUNS, minits, maxits, total_it_num/MAX_RUNS);
-    //printf("Av. Setup Time = %.1lf ms, Total Setup Time = %.1lf ms\n", total_su_time/MAX_RUNS, total_su_time);
-    //printf("Av. Iteration Time = %.1lf ms, Total Iteration Time = %.1lf ms\n", total_it_time/MAX_RUNS, total_it_time);
-    //printf("Total Time (Setup + Convergence) = %.1lf ms\n", total_su_time + total_it_time);
+    printf("\n\nFINAL STATISTICS\n\n");
+    printf("Runs = %d, Min Its # = %d,  Max Its = %d, Av. Iteration # = %.0lf\n", MAX_RUNS, minits, maxits, total_it_num/MAX_RUNS);
+    printf("Av. Setup Time = %.1lf ms, Total Setup Time = %.1lf ms\n", total_su_time/MAX_RUNS, total_su_time);
+    printf("Av. Iteration Time = %.1lf ms, Total Iteration Time = %.1lf ms\n", total_it_time/MAX_RUNS, total_it_time);
+    printf("Total Time (Setup + Convergence) = %.1lf ms\n", total_su_time + total_it_time);
 
-    //printf("\nTempo Total de Execucao do Programa = %.1lf ms\n", total_program);
-
-    printf("Setup Time: %.1lf ms\n", total_su_time);
-    printf("Convergence Time: %.1lf ms\n", total_it_time);
-    printf("Total Time (Setup + Convergence): %.1lf ms\n", total_su_time + total_it_time);
-    printf("Tempo Total de Execucao do Programa: %.1lf ms\n", total_program);
-    printf("----------------------------------------------------\n");
+    printf("\nTempo Total de Execucao do Programa = %.1lf ms\n", total_program);
 
     fflush(stdout);
 
