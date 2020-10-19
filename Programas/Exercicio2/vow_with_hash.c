@@ -7,11 +7,12 @@
 #include "hash3_code.h"
 #include <time.h>
 #include <mpi.h>
+#include <string.h>
 
 // Defines that the user can control
 #define MAX_RUNS                   100
-#define MODULO_NUM_BITS             20
-#define NUM_THREADS                  4
+#define MODULO_NUM_BITS             28
+#define NUM_THREADS                  1
 #define MAX_EMPTY_SLOT_NOT_FOUND   100
 
 // GLOBAL VARIABLES
@@ -21,10 +22,6 @@ const int algorithm = VOW;
 const int L = NUM_IT_FUNCTION_INTERVALS;
 const int nbits = MODULO_NUM_BITS;
 const int nworkers = NUM_THREADS;
-
-// NON-CONSTANT VALUED GLOBAL VARIABLES
-long long n_unfruitfulcollisions = 0;
-long long kvaluefound;
 
 POINT_T   hashtable[TABLESIZE];
 POINT_T   EMPTY_POINT = {0, 0, 0, 0};
@@ -67,12 +64,12 @@ POINT_T add_2P(POINT_T p, long long a, long long mod) {
     }
 
 	num = (3*p.x*p.x + a) % mod;
-	while (num < 0) {
-		num = num + mod;
-	}
+	if(num < 0) { // while
+        num = (num%mod) + mod; // num = num + mod;
+    }
 	den = 2*p.y;
-	while (den < 0) {
-        den += mod;
+	if(den < 0) { // while
+        den = (den%mod) + mod; // den += mod;
     }
     den = den % mod;
 
@@ -80,14 +77,14 @@ POINT_T add_2P(POINT_T p, long long a, long long mod) {
 	lambda = (num * invden) % mod;
 
 	val.x = (lambda*lambda - p.x - p.x);
-	while (val.x < 0) {
-	    val.x += mod;
+	if(val.x < 0) { // while
+	    val.x = (val.x%mod) + mod; // val.x += mod;
 	}
 	val.x = val.x % mod;
 
 	val.y = (lambda*(p.x - val.x) - p.y);
-		while (val.y < 0) {
-	    val.y += mod;
+	if(val.y < 0) { // while
+	    val.y = (val.y%mod) + mod; // val.y += mod;
 	}
 	val.y = val.y % mod;
 
@@ -111,14 +108,14 @@ POINT_T add_PQ(POINT_T p, POINT_T q, long long mod)
     }
 
 	num = (q.y - p.y);
-	while (num < 0) {
-		num = num + mod;
-	}
+	if(num < 0) { // while
+        num = (num%mod) + mod; // num = num + mod;
+    }
 	num = num % mod;
 
 	den = q.x - p.x;
-	while (den < 0) {
-        den += mod;
+	if(den < 0) { // while
+        den = (den%mod) + mod; // den += mod;
     }
     den = den % mod;
 
@@ -126,14 +123,14 @@ POINT_T add_PQ(POINT_T p, POINT_T q, long long mod)
 	lambda = (num*invden) % mod;
 
 	val.x = (lambda*lambda - p.x - q.x);
-	while (val.x < 0) {
-	    val.x += mod;
+	if(val.x < 0) { // while
+	    val.x = (val.x%mod) + mod; // val.x += mod;
 	}
 	val.x = val.x % mod;
 
 	val.y = (lambda*(p.x - val.x) - p.y);
-	while (val.y < 0) {
-	    val.y += mod;
+	if(val.y < 0) { // while
+	    val.y = (val.y%mod) + mod; // val.y += mod;
 	}
 	val.y = val.y % mod;
 
@@ -333,11 +330,13 @@ long long int get_k(long long c1, long long d1, long long c2, long long d2, long
     long long  num, den, invden, k;
 
     num = (c1 - c2);
-    while (num < 0)  num = num+order;
+    if(num < 0) // while
+        num = (num%order)+order; // num = num+order;
     num = num % order;
 
     den = (d2 - d1);
-    while (den < 0)  den = den+order;
+    if(den < 0) // while
+        den = (den%order)+order; // den = den+order;
 
     invden = multiplicative_inverse(den, order);
     k = (num*invden) % order;
@@ -736,7 +735,7 @@ void handle_newpoint(const POINT_T *X, long long order, long long *key)
                 }
             case UNFRUITFUL_COLLISION:
                 // printf("   --  Unfruitful collision -- continuing ...\n");
-                printf("@");
+                //printf("@");
                 break;
             case STORED:
                 break;
@@ -980,9 +979,7 @@ int main(int argc, char **argv) {
         }
 
         // Cleanup the hash table
-        for (int x = 0; x < TABLESIZE; x++) {
-            hashtable[x] = EMPTY_POINT;
-        }
+        memset(hashtable, 0, sizeof hashtable);
     }
 
     if(thread_num == 0) {
