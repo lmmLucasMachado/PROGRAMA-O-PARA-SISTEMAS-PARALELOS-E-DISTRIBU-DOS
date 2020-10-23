@@ -3,8 +3,8 @@
 #define __device__
 #define _POSIX_C_SOURCE 199309L
 
-#include "prho_vow.h"
-#include "hash3_code.h"
+#include "../inc/prho_vow.h"
+#include "../inc/hash3_code.h"
 #include <time.h>
 #include <mpi.h>
 #include <string.h>
