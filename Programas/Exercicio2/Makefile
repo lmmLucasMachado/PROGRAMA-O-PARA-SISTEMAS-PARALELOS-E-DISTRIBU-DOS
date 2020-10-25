@@ -18,17 +18,7 @@ clean:
 	rm -rf bin/*
 
 run:
-ifeq ($(node), 1)
-	mpirun -host "cm2" -np $(np) bin/saida
-endif
-ifeq ($(node), 2)
-	mpirun -host "cm2, cm3" -np $(np) bin/saida
-endif
-ifeq ($(node), 3)
-	mpirun -host "cm2, cm3, cm4" -np $(np) bin/saida
-else
-	echo "A variavel node precisa estar entre 1 e 3"
-endif
+	mpirun --hostfile hostfile -ppn $(ppn) -n $(node) bin/saida
 
 
 # HostList
