@@ -14,11 +14,22 @@ obj/%.o : src/%.c
 
 .PHONY: clean
 clean:
-	rm -rf obj/*
-	rm -rf bin/*
+	@rm -rf bin/*||:
+	@rm -rf obj/*||:
 
 run:
-	mpirun --hostfile hostfile -ppn $(ppn) -n $(node) bin/saida
+	@mpirun --hostfile hostfile -ppn $(ppn) -n $$(($(node) * $(ppn))) bin/saida||:
+
+help:
+	@echo "Para compilar o programa basta"||:
+	@echo "make"||:
+
+	@echo "Para rodar o programa e necessario especificar a quantidade de nos (node) e programas por no (ppn)"||:
+	@echo "Caso queira roda 12 programas em 3 nos diferentes basta rodar:"||:
+	@echo "make run node=3 ppn=12"||:
+
+	@echo "E para limpar os objetos e o executavel"||:
+	@echo "make clean"||:
 
 
 # HostList
