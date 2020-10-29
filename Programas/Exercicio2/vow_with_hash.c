@@ -1,4 +1,3 @@
-// Define CUDA function directives as spaces
 #define __global__
 #define __device__
 #define _POSIX_C_SOURCE 199309L
@@ -11,10 +10,10 @@
 
 // Defines that the user can control
 #define MAX_RUNS                    10
-#define MODULO_NUM_BITS             24
-#define NUM_PROCESS                  6
+//#define MODULO_NUM_BITS             24
+//#define NUM_PROCESS                  6
 #define MAX_EMPTY_SLOT_NOT_FOUND   100
-#define NUM_NODES                    1
+//#define NUM_NODES                    1
 
 // GLOBAL VARIABLES
 
@@ -447,6 +446,8 @@ rand_itpset(IT_POINT_SET *itpset, POINT_T *Psums, POINT_T *Qsums,
         itpset->itpoint[i].r = r;
         itpset->itpoint[i].s = s;
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     if(proc_number == 0) {
         int rank_atual = NUM_PROCESS/NUM_NODES;
